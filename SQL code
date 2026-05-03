@@ -1,0 +1,73 @@
+DROP DATABASE IF EXISTS travel_agency_db;
+CREATE DATABASE IF NOT EXISTS travel_agency_db;
+USE travel_agency_db;
+
+CREATE TABLE IF NOT EXISTS Users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    phone_number VARCHAR(20),
+    role ENUM('Admin', 'Client') DEFAULT 'Client',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS Hotels (
+    hotel_id INT AUTO_INCREMENT PRIMARY KEY,
+    hotel_name VARCHAR(255) NOT NULL,
+    city VARCHAR(100),
+    stars INT,
+    description TEXT
+);
+
+CREATE TABLE IF NOT EXISTS Tours (
+    tour_id INT AUTO_INCREMENT PRIMARY KEY,
+    tour_title VARCHAR(255) NOT NULL,
+    region VARCHAR(100) NOT NULL,
+    description TEXT,
+    price_per_person DECIMAL(10, 2) NOT NULL,
+    hotel_id INT, 
+    services_included TEXT,
+    start_date DATE,
+    end_date DATE,
+    is_active BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (hotel_id) REFERENCES Hotels(hotel_id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS Bookings (
+    booking_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    tour_id INT,
+    booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('Pending', 'Confirmed', 'Cancelled') DEFAULT 'Pending',
+    total_amount DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (tour_id) REFERENCES Tours(tour_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS Payments (
+    payment_id INT AUTO_INCREMENT PRIMARY KEY,
+    booking_id INT NOT NULL,
+    user_id INT NOT NULL, 
+    amount DECIMAL(10, 2) NOT NULL,
+    payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    payment_method ENUM('Card', 'Cash', 'Bank Transfer', 'ApplePay/GooglePay') DEFAULT 'Card',
+    payment_status ENUM('Pending', 'Completed', 'Failed', 'Refunded') DEFAULT 'Pending',
+    transaction_id VARCHAR(100) UNIQUE,
+    FOREIGN KEY (booking_id) REFERENCES Bookings(booking_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS Reviews (
+    review_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    tour_id INT NULL,
+    hotel_id INT NULL,   
+    rating INT,          
+    comment TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (tour_id) REFERENCES Tours(tour_id) ON DELETE CASCADE,
+    FOREIGN KEY (hotel_id) REFERENCES Hotels(hotel_id) ON DELETE CASCADE
+);
