@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Вхід — GoWay</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">✈️ Go<span>Way</span></a>
+    <div class="nav-buttons">
+      <a href="/register.html" class="btn-register">Реєстрація</a>
+    </div>
+  </header>
+
+  <div class="page-wrapper">
+    <a href="/" class="back-link">← На головну</a>
+    <div class="card">
+      <h2 style="margin-bottom:5px">Вхід в GoWay</h2>
+      <p style="color:#888;font-size:0.9em;margin-bottom:10px">Раді бачити вас знову!</p>
+      <label>Email</label>
+      <input type="email" id="email" placeholder="your@email.com">
+      <label>Пароль</label>
+      <input type="password" id="password" placeholder="••••••••">
+      <div style="margin-top:20px">
+        <button class="btn-primary" onclick="login()">Увійти</button>
+      </div>
+      <div class="error-msg" id="error"></div>
+      <p style="text-align:center;margin-top:20px;color:#888;font-size:0.9em">
+        Немає акаунту? <a href="/register.html" style="color:#f72585;font-weight:600">Зареєструватись</a>
+      </p>
+    </div>
+  </div>
+
+  <footer>© 2026 <span>GoWay Tours</span></footer>
+  <script>
+    async function login() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (res.ok) { window.location = '/'; }
+      else {
+        const el = document.getElementById('error');
+        el.textContent = data.error;
+        el.style.display = 'block';
+      }
+    }
+  </script>
+</body>
+</html>

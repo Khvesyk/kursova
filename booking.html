@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Бронювання — GoWay</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    .total-box { background: linear-gradient(135deg, #1a1a2e, #16213e); color: white; padding: 15px 20px; border-radius: 12px; margin: 20px 0; display: flex; justify-content: space-between; align-items: center; }
+    .total-box .label { font-size: 0.9em; color: rgba(255,255,255,0.7); }
+    .total-box .amount { font-size: 1.5em; font-weight: 700; color: #f72585; }
+    .persons-input { display: flex; align-items: center; gap: 10px; }
+    .persons-input button { width: 36px; height: 36px; border-radius: 50%; border: 2px solid #e8ecf0; background: white; font-size: 1.2em; cursor: pointer; flex-shrink: 0; transition: all 0.2s; }
+    .persons-input button:hover { border-color: #f72585; color: #f72585; }
+    .persons-input input { text-align: center; }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">✈️ Go<span>Way</span></a>
+    <div class="nav-buttons">
+      <a href="javascript:history.back()" class="btn-outline">← Назад</a>
+    </div>
+  </header>
+
+  <div class="page-wrapper">
+    <div class="card">
+      <h2 id="tour-name" style="margin-bottom:5px">Бронювання туру</h2>
+      <p style="color:#888;font-size:0.9em;margin-bottom:5px">Заповніть форму і ми підтвердимо бронювання</p>
+
+      <label>Ім'я</label>
+      <input type="text" id="first-name" placeholder="Іван">
+      <label>Прізвище</label>
+      <input type="text" id="last-name" placeholder="Шевченко">
+      <label>Email</label>
+      <input type="email" id="email" placeholder="your@email.com">
+      <label>Телефон</label>
+      <input type="tel" id="phone" placeholder="+380XXXXXXXXX">
+      <label>Кількість осіб</label>
+      <div class="persons-input">
+        <button onclick="changePerson(-1)">−</button>
+        <input type="number" id="persons" value="1" min="1" max="20" oninput="updateTotal()">
+        <button onclick="changePerson(1)">+</button>
+      </div>
+
+      <div class="total-box">
+        <div><div class="label">Загальна сума</div></div>
+        <div class="amount" id="total-amount">—</div>
+      </div>
+
+      <button class="btn-primary" onclick="submitBooking()">✈️ Підтвердити бронювання</button>
+      <div class="error-msg" id="error"></div>
+      <div class="success-msg" id="success">✅ Бронювання успішно створено! Ми зв'яжемось з вами найближчим часом.</div>
+    </div>
+  </div>
+
+  <footer>© 2026 <span>GoWay Tours</span></footer>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const tourId = params.get('id');
+    let pricePerPerson = 0;
+
+    fetch('/api/tours/' + tourId).then(r => r.json()).then(tour => {
+      document.getElementById('tour-name').textContent = '✈️ ' + tour.name;
+      pricePerPerson = parseFloat(tour.price);
+      updateTotal();
+    });
+
+    function changePerson(d) {
+      const el = document.getElementById('persons');
+      const val = parseInt(el.value) + d;
+      if (val >= 1 && val <= 20) { el.value = val; updateTotal(); }
+    }
+
+    function updateTotal() {
+      const persons = parseInt(document.getElementById('persons').value) || 1;
+      document.getElementById('total-amount').textContent = (pricePerPerson * persons).toFixed(2) + ' USD';
+    }
+
+    async function submitBooking() {
+      const firstName = document.getElementById('first-name').value.trim();
+      const lastName = document.getElementById('last-name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const persons = parseInt(document.getElementById('persons').value);
+
+      if (!firstName || !lastName || !email) {
+        const el = document.getElementById('error');
+        el.textContent = "Заповніть всі обов'язкові поля";
+        el.style.display = 'block';
+        return;
+      }
+
+      const res = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tourId, firstName, lastName, email, phone, persons })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        document.getElementById('success').style.display = 'block';
+        document.getElementById('error').style.display = 'none';
+      } else {
+        const el = document.getElementById('error');
+        el.textContent = data.error || 'Помилка бронювання';
+        el.style.display = 'block';
+      }
+    }
+  </script>
+</body>
+</html>

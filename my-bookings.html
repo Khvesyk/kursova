@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Мої бронювання — GoWay</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    .booking-card { background: white; border-radius: 14px; padding: 20px 25px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.07); display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+    .booking-info h3 { margin: 0 0 6px; font-size: 1.05em; }
+    .booking-info p { margin: 3px 0; color: #888; font-size: 0.88em; }
+    .booking-total { font-weight: 700; color: #f72585; font-size: 1em; margin-top: 5px; }
+    .status { padding: 6px 16px; border-radius: 20px; font-size: 0.82em; font-weight: 600; white-space: nowrap; }
+    .status.Pending { background: #fff3cd; color: #856404; }
+    .status.Confirmed { background: #d8f3dc; color: #2d6a4f; }
+    .status.Cancelled { background: #ffeaec; color: #e63946; }
+    .empty { text-align: center; padding: 60px; color: #aaa; }
+    .empty a { color: #f72585; font-weight: 600; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">✈️ Go<span>Way</span></a>
+    <div class="nav-buttons">
+      <a href="/" class="btn-outline">← На головну</a>
+    </div>
+  </header>
+
+  <div class="page-wrapper-wide">
+    <a href="/" class="back-link">← На головну</a>
+    <h2 style="margin-bottom:25px">🗂 Мої бронювання</h2>
+    <div id="bookings-list">Завантаження...</div>
+  </div>
+
+  <footer>© 2026 <span>GoWay Tours</span></footer>
+  <script>
+    fetch('/api/me').then(r => r.json()).then(data => {
+      if (!data.userId) window.location = '/login.html';
+    });
+
+    fetch('/api/my-bookings').then(r => r.json()).then(bookings => {
+      const list = document.getElementById('bookings-list');
+      if (!bookings.length) {
+        list.innerHTML = '<div class="empty"><div style="font-size:3em">📭</div><p style="margin:10px 0">У вас ще немає бронювань</p><a href="/">Переглянути тури</a></div>';
+        return;
+      }
+      const statusMap = { Pending: 'Очікує', Confirmed: 'Підтверджено', Cancelled: 'Скасовано' };
+      list.innerHTML = bookings.map(function(b) {
+        return '<div class="booking-card">' +
+          '<div class="booking-info">' +
+          '<h3>✈️ ' + b.tour_name + '</h3>' +
+          '<p>📅 ' + new Date(b.booking_date).toLocaleDateString('uk-UA') + '</p>' +
+          '<p class="booking-total">💰 ' + b.total_amount + ' USD</p>' +
+          '</div>' +
+          '<span class="status ' + b.status + '">' + (statusMap[b.status] || b.status) + '</span>' +
+          '</div>';
+      }).join('');
+    });
+  </script>
+</body>
+</html>

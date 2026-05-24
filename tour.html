@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Деталі туру</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 0; margin: 0; background: #f4f7f6; color: #333; }
+    
+    /* Шапка під стиль головної сторінки (темно-синя) */
+    header { background: #1e2233; color: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.15); position: sticky; top: 0; z-index: 100; }
+    header .logo { font-size: 1.6em; font-weight: bold; color: white; text-decoration: none; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px; }
+    header .nav-links a { color: white; text-decoration: none; padding: 10px 24px; border: 1px solid rgba(255,255,255,0.3); border-radius: 25px; font-size: 0.95em; transition: all 0.3s; background: rgba(255,255,255,0.05); }
+    header .nav-links a:hover { background: rgba(255,255,255,0.2); border-color: white; transform: translateY(-2px); }
+
+    main { max-width: 850px; margin: 40px auto; padding: 0 20px; }
+    
+    /* Картка туру */
+    .tour-card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.08); margin-bottom: 40px; transition: transform 0.3s; }
+    .tour-card:hover { transform: translateY(-5px); }
+    .tour-card img { width: 100%; height: 450px; object-fit: cover; border-bottom: 3px solid #e81e61; }
+    .tour-body { padding: 40px; }
+    
+    .country { background: rgba(232, 30, 97, 0.1); color: #e81e61; padding: 8px 16px; border-radius: 20px; display: inline-block; font-size: 0.9em; font-weight: bold; margin-bottom: 20px; letter-spacing: 0.5px; }
+    .tour-body h2 { margin: 0 0 15px; font-size: 2.2em; color: #1e2233; }
+    .description { color: #555; line-height: 1.8; margin-bottom: 30px; font-size: 1.1em; }
+    
+    .tour-meta { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 35px; }
+    .meta-item { background: #f8f9fa; padding: 20px; border-radius: 15px; flex: 1; min-width: 150px; border: 1px solid #eee; position: relative; overflow: hidden; }
+    .meta-item::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 4px; background: #e81e61; }
+    .meta-item span { display: block; font-size: 0.85em; color: #888; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .meta-item strong { font-size: 1.3em; color: #1e2233; }
+    .meta-item strong.price { color: #e81e61; font-size: 1.6em; font-weight: 800; }
+    
+    /* Акцентна кнопка (рожева) */
+    .btn { background: linear-gradient(135deg, #e81e61, #c2185b); color: white; padding: 18px 30px; border: none; border-radius: 12px; cursor: pointer; font-size: 1.2em; width: 100%; font-weight: bold; transition: all 0.3s; box-shadow: 0 5px 15px rgba(232, 30, 97, 0.3); display: flex; justify-content: center; align-items: center; gap: 10px; }
+    .btn:hover { background: linear-gradient(135deg, #c2185b, #ad1457); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(232, 30, 97, 0.4); }
+
+    /* Секція відгуків */
+    .reviews-section { background: white; border-radius: 20px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); margin-bottom: 40px; }
+    .reviews-section h3 { margin: 0 0 30px; font-size: 1.8em; color: #1e2233; display: flex; align-items: center; gap: 10px; }
+    
+    .avg-rating { display: flex; align-items: center; gap: 25px; margin-bottom: 35px; background: #f8f9fa; padding: 25px 30px; border-radius: 15px; border: 1px solid #eee; }
+    .avg-number { font-size: 4em; font-weight: bold; color: #e81e61; line-height: 1; }
+    .avg-info { display: flex; flex-direction: column; gap: 5px; }
+    .avg-info .stars { color: #ffc107; font-size: 1.5em; letter-spacing: 2px; margin: 0; }
+    .avg-info .count { color: #888; font-size: 1em; }
+    
+    .review-form { background: #fdfdfd; padding: 30px; border-radius: 15px; margin-bottom: 40px; border: 2px dashed #eaeaea; }
+    .review-form h4 { margin: 0 0 20px; color: #1e2233; font-size: 1.3em; }
+    .stars-input { display: flex; gap: 8px; margin-bottom: 20px; }
+    .star-input { font-size: 2.5em; cursor: pointer; color: #e4e5e9; transition: transform 0.2s, color 0.2s; }
+    .star-input:hover { transform: scale(1.1); }
+    .star-input.active { color: #ffc107; }
+    
+    .review-form textarea { width: 100%; padding: 18px; border: 1px solid #ced4da; border-radius: 12px; font-size: 1.05em; height: 130px; resize: vertical; font-family: inherit; transition: all 0.3s; background: #fff; }
+    .review-form textarea:focus { outline: none; border-color: #e81e61; box-shadow: 0 0 0 4px rgba(232, 30, 97, 0.1); }
+    
+    .btn-review { background: #1e2233; color: white; padding: 14px 28px; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em; margin-top: 20px; transition: all 0.3s; font-weight: bold; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-review:hover { background: #e81e61; transform: translateY(-2px); }
+    
+    .review-item { padding: 30px 0; border-bottom: 1px solid #f0f0f0; }
+    .review-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .reviewer { font-weight: bold; color: #1e2233; font-size: 1.2em; display: flex; align-items: center; gap: 8px; }
+    .review-stars { color: #ffc107; font-size: 1.2em; letter-spacing: 2px; }
+    .review-date { font-size: 0.9em; color: #888; margin-bottom: 15px; display: block; }
+    .review-comment { color: #444; line-height: 1.8; font-size: 1.05em; margin: 0; background: #f8f9fa; padding: 20px; border-radius: 12px; border-left: 3px solid #e81e61; }
+    
+    .no-reviews { color: #888; text-align: center; padding: 40px; font-size: 1.2em; background: #f8f9fa; border-radius: 15px; border: 1px dashed #ccc; }
+    .login-prompt { background: rgba(232, 30, 97, 0.05); padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 25px; color: #1e2233; border: 1px solid rgba(232, 30, 97, 0.2); font-size: 1.1em; }
+    .login-prompt a { color: #e81e61; font-weight: bold; text-decoration: none; padding: 0 5px; }
+    .login-prompt a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">✈️ GoWay Tours</a>
+    <div class="nav-links">
+      <a href="/">← Повернутися до турів</a>
+    </div>
+  </header>
+
+  <main>
+    <div class="tour-card" id="tour-detail">
+      <div style="padding: 40px; text-align: center; font-size: 1.2em; color: #888;">⏳ Завантаження інформації про тур...</div>
+    </div>
+
+    <div class="reviews-section">
+      <h3>💬 Відгуки мандрівників</h3>
+      <div class="avg-rating" id="avg-rating"></div>
+      <div id="review-form-container"></div>
+      <div id="reviews-list"></div>
+    </div>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    let currentUser = null;
+    let selectedRating = 0;
+
+    const photos = {
+      'Україна': 'https://images.unsplash.com/photo-1593264128891-3e338e73cd98?w=800&h=450&fit=crop',
+      'Польща': 'https://images.unsplash.com/photo-1519197924294-4ba991a11128?w=800&h=450&fit=crop',
+      'Туреччина': 'https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=800&h=450&fit=crop',
+      'Єгипет': 'https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=800&h=450&fit=crop',
+      'Греція': 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=800&h=450&fit=crop',
+      'Іспанія': 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=800&h=450&fit=crop',
+      'Мальдіви': 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=800&h=450&fit=crop',
+      'Чехія': 'https://images.unsplash.com/photo-1541849546-216549ae216d?w=800&h=450&fit=crop',
+      'Австрія': 'https://images.unsplash.com/photo-1516550893923-42d28e5677af?w=800&h=450&fit=crop',
+      'Італія': 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&h=450&fit=crop',
+      'ОАЕ': 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&h=450&fit=crop',
+      'Франція': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&h=450&fit=crop',
+      'Японія': 'https://images.unsplash.com/photo-1490761668535-35497054764e?w=800&h=450&fit=crop',
+      'Таїланд': 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=800&h=450&fit=crop',
+      'Індонезія': 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&h=450&fit=crop',
+      'Нідерланди': 'https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=800&h=450&fit=crop',
+      'Португалія': 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=800&h=450&fit=crop',
+      'Марокко': 'https://images.unsplash.com/photo-1489493887464-892be6d1daae?w=800&h=450&fit=crop',
+      'Норвегія': 'https://images.unsplash.com/photo-1516733968668-dbdce39c4651?w=800&h=450&fit=crop',
+      'Швейцарія': 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=800&h=450&fit=crop'
+    };
+
+    // Перевірка авторизації
+    fetch('/api/me').then(r => r.json()).then(data => {
+      currentUser = data.userId ? data : null;
+      renderReviewForm();
+    });
+
+    // Завантаження туру
+    fetch('/api/tours/' + id).then(r => r.json()).then(tour => {
+      const img = tour.image_url || photos[tour.country] || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&h=450&fit=crop';
+      document.title = tour.name;
+      document.getElementById('tour-detail').innerHTML =
+        '<img src="' + img + '" alt="' + tour.name + '">' +
+        '<div class="tour-body">' +
+        '<div class="country">📍 ' + tour.country + '</div>' +
+        '<h2>' + tour.name + '</h2>' +
+        '<p class="description">' + (tour.description || '') + '</p>' +
+        '<div class="tour-meta">' +
+        '<div class="meta-item"><span>📅 Дата заїзду</span><strong>' + (tour.start_date ? tour.start_date.slice(0,10) : '—') + '</strong></div>' +
+        '<div class="meta-item"><span>⏳ Дата виїзду</span><strong>' + (tour.end_date ? tour.end_date.slice(0,10) : '—') + '</strong></div>' +
+        '<div class="meta-item"><span>💵 Ціна за особу</span><strong class="price">' + tour.price + ' USD</strong></div>' +
+        '</div>' +
+        '<button class="btn" onclick="window.location=\'/booking.html?id=' + id + '\'">✈️ Забронювати цей тур</button>' +
+        '</div>';
+    });
+
+    // Завантаження відгуків
+    function loadReviews() {
+      fetch('/api/tours/' + id + '/reviews').then(r => r.json()).then(reviews => {
+        const avgDiv = document.getElementById('avg-rating');
+        if (reviews.length > 0) {
+          const avg = (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1);
+          avgDiv.style.display = 'flex';
+          avgDiv.innerHTML = 
+            '<div class="avg-number">' + avg + '</div>' +
+            '<div class="avg-info">' +
+              '<div class="stars">' + starsHtml(Math.round(avg)) + '</div>' +
+              '<div class="count">На основі ' + reviews.length + ' відгуків</div>' +
+            '</div>';
+        } else {
+          avgDiv.style.display = 'none';
+        }
+
+        const list = document.getElementById('reviews-list');
+        if (reviews.length === 0) {
+          list.innerHTML = '<div class="no-reviews">🌴 Поки немає відгуків. Станьте першим, хто поділиться враженнями!</div>';
+          return;
+        }
+        list.innerHTML = reviews.map(function(r) {
+          return '<div class="review-item">' +
+            '<div class="review-header">' +
+            '<span class="reviewer">👤 ' + r.first_name + ' ' + r.last_name + '</span>' +
+            '<span class="review-stars">' + starsHtml(r.rating) + '</span>' +
+            '</div>' +
+            '<span class="review-date">📅 ' + new Date(r.created_at).toLocaleDateString('uk-UA') + '</span>' +
+            (r.comment ? '<p class="review-comment">«' + r.comment + '»</p>' : '') +
+            '</div>';
+        }).join('');
+      });
+    }
+
+    function starsHtml(n) {
+      return '★'.repeat(n) + '☆'.repeat(5 - n);
+    }
+
+    function renderReviewForm() {
+      const container = document.getElementById('review-form-container');
+      if (!currentUser) {
+        container.innerHTML = '<div class="login-prompt">🔒 Щоб залишити відгук, <a href="/login.html">увійдіть</a> або <a href="/register.html">зареєструйтесь</a> в системі.</div>';
+        return;
+      }
+      container.innerHTML =
+        '<div class="review-form">' +
+        '<h4>✍️ Поділіться своїми враженнями</h4>' +
+        '<div class="stars-input" id="stars">' +
+        [1,2,3,4,5].map(function(i) {
+          return '<span class="star-input" onclick="setRating(' + i + ')" onmouseover="hoverRating(' + i + ')" onmouseout="hoverRating(0)">★</span>';
+        }).join('') +
+        '</div>' +
+        '<textarea id="review-comment" placeholder="Напишіть, що вам найбільше сподобалося у цьому турі..."></textarea>' +
+        '<button class="btn-review" onclick="submitReview()">🚀 Надіслати відгук</button>' +
+        '</div>';
+    }
+
+    function setRating(n) {
+      selectedRating = n;
+      updateStars(n);
+    }
+
+    function hoverRating(n) {
+      updateStars(n || selectedRating);
+    }
+
+    function updateStars(n) {
+      document.querySelectorAll('.star-input').forEach(function(s, i) {
+        s.classList.toggle('active', i < n);
+      });
+    }
+
+    async function submitReview() {
+      if (!selectedRating) { alert('⚠️ Будь ласка, виберіть оцінку (кількість зірок)!'); return; }
+      const comment = document.getElementById('review-comment').value;
+      const res = await fetch('/api/tours/' + id + '/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rating: selectedRating, comment })
+      });
+      if (res.ok) {
+        selectedRating = 0;
+        document.getElementById('review-comment').value = '';
+        updateStars(0);
+        loadReviews();
+      } else {
+        const data = await res.json();
+        alert('❌ ' + data.error);
+      }
+    }
+
+    loadReviews();
+  </script>
+</body>
+</html>

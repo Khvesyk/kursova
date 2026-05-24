@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>GoWay Tours</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; color: #1a1a2e; }
+    header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 0 40px; display: flex; justify-content: space-between; align-items: center; height: 65px; box-shadow: 0 2px 20px rgba(0,0,0,0.3); position: sticky; top: 0; z-index: 100; }
+    .logo { font-size: 1.5em; font-weight: 700; letter-spacing: 1px; }
+    .logo span { color: #f72585; }
+    .nav-buttons a { color: white; text-decoration: none; margin-left: 12px; padding: 8px 18px; border-radius: 25px; font-size: 0.9em; transition: all 0.3s; }
+    .btn-login { border: 1px solid rgba(255,255,255,0.4); }
+    .btn-login:hover { background: rgba(255,255,255,0.1); }
+    .btn-register { background: #f72585; }
+    .btn-register:hover { background: #d61a6e !important; }
+    .btn-outline { border: 1px solid rgba(255,255,255,0.3); }
+    .btn-outline:hover { background: rgba(255,255,255,0.1); }
+    .nav-user { color: rgba(255,255,255,0.8); font-size: 0.9em; margin-left: 15px; }
+    .hero { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: white; padding: 70px 40px; text-align: center; position: relative; overflow: hidden; }
+    .hero::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(247,37,133,0.1) 0%, transparent 60%); }
+    .hero h2 { font-size: 2.8em; font-weight: 700; margin-bottom: 15px; position: relative; }
+    .hero h2 span { color: #f72585; }
+    .hero p { font-size: 1.15em; color: rgba(255,255,255,0.75); margin-bottom: 40px; position: relative; }
+    .filters { background: white; border-radius: 16px; padding: 25px 30px; max-width: 900px; margin: -30px auto 0; position: relative; z-index: 10; box-shadow: 0 10px 40px rgba(0,0,0,0.15); }
+    .filters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; align-items: end; }
+    .filter-group label { display: block; font-size: 0.78em; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .filter-group input, .filter-group select { width: 100%; padding: 10px 14px; border: 2px solid #e8ecf0; border-radius: 10px; font-size: 0.95em; transition: border 0.2s; outline: none; }
+    .filter-group input:focus, .filter-group select:focus { border-color: #f72585; }
+    .btn-filter { background: linear-gradient(135deg, #f72585, #d61a6e); color: white; padding: 11px 25px; border: none; border-radius: 10px; cursor: pointer; font-size: 0.95em; font-weight: 600; width: 100%; transition: transform 0.2s, box-shadow 0.2s; }
+    .btn-filter:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(247,37,133,0.4); }
+    .btn-reset { background: #f0f4f8; color: #666; padding: 11px 20px; border: none; border-radius: 10px; cursor: pointer; font-size: 0.95em; width: 100%; transition: background 0.2s; }
+    .btn-reset:hover { background: #e0e7ef; }
+    main { padding: 50px 40px; max-width: 1400px; margin: 0 auto; }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .section-header h3 { font-size: 1.4em; font-weight: 700; }
+    .results-count { color: #888; font-size: 0.9em; }
+    .tours-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 25px; }
+    .tour-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.08); cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; }
+    .tour-card:hover { transform: translateY(-6px); box-shadow: 0 15px 40px rgba(0,0,0,0.15); }
+    .tour-card-img { position: relative; height: 210px; overflow: hidden; }
+    .tour-card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+    .tour-card:hover .tour-card-img img { transform: scale(1.05); }
+    .tour-badge { position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.55); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.78em; backdrop-filter: blur(4px); }
+    .tour-card-body { padding: 18px; }
+    .tour-card h3 { font-size: 1.05em; font-weight: 700; margin-bottom: 8px; line-height: 1.3; }
+    .tour-card p { color: #888; font-size: 0.85em; line-height: 1.5; margin-bottom: 15px; }
+    .tour-card-footer { display: flex; justify-content: space-between; align-items: center; }
+    .price { font-size: 1.2em; font-weight: 700; color: #f72585; }
+    .price small { font-size: 0.65em; color: #aaa; font-weight: 400; }
+    .tour-date { font-size: 0.8em; color: #aaa; }
+    .no-results { text-align: center; padding: 80px; color: #aaa; grid-column: 1/-1; }
+    .no-results p { font-size: 1.1em; margin-top: 10px; }
+
+    /* Секція заявки */
+    .lead-section { background: linear-gradient(135deg, #1a1a2e, #0f3460); padding: 60px 20px; text-align: center; color: white; }
+    .lead-section h2 { font-size: 2em; margin-bottom: 10px; }
+    .lead-section p { color: rgba(255,255,255,0.7); margin-bottom: 35px; font-size: 1.05em; }
+    .lead-box { background: white; border-radius: 16px; padding: 35px; max-width: 550px; margin: 0 auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); text-align: left; }
+    .lead-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+    .lead-box label { display: block; font-size: 0.78em; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .lead-box input, .lead-box textarea { width: 100%; padding: 11px 14px; border: 2px solid #e8ecf0; border-radius: 10px; font-size: 0.95em; outline: none; font-family: inherit; transition: border 0.2s; }
+    .lead-box input:focus, .lead-box textarea:focus { border-color: #f72585; }
+    .lead-box textarea { height: 90px; resize: vertical; margin-bottom: 20px; }
+    .btn-lead { background: linear-gradient(135deg, #f72585, #d61a6e); color: white; width: 100%; padding: 14px; border: none; border-radius: 10px; font-size: 1em; font-weight: 600; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+    .btn-lead:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(247,37,133,0.4); }
+    .lead-error { color: #e63946; background: #ffeaec; padding: 10px 15px; border-radius: 8px; margin-top: 12px; font-size: 0.9em; display: none; }
+    .lead-success { background: white; border-radius: 16px; padding: 40px; max-width: 550px; margin: 0 auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); display: none; }
+    .lead-success .icon { font-size: 3em; margin-bottom: 15px; }
+    .lead-success h3 { color: #1a1a2e; margin-bottom: 10px; }
+    .lead-success p { color: #888; }
+
+    footer { background: #1a1a2e; color: rgba(255,255,255,0.5); text-align: center; padding: 30px; font-size: 0.9em; }
+    footer span { color: #f72585; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">✈️ Go<span>Way</span></div>
+    <div class="nav-buttons" id="nav"></div>
+  </header>
+
+  <div class="hero">
+    <h2>Знайди тур своєї <span>мрії</span></h2>
+    <p>Понад 30 напрямків по всьому світу за найкращими цінами</p>
+  </div>
+
+  <div class="filters">
+    <div class="filters-grid">
+      <div class="filter-group">
+        <label>🌍 Країна</label>
+        <select id="filter-country"><option value="">Всі країни</option></select>
+      </div>
+      <div class="filter-group">
+        <label>💰 Ціна від</label>
+        <input type="number" id="filter-price-min" placeholder="0">
+      </div>
+      <div class="filter-group">
+        <label>💰 Ціна до</label>
+        <input type="number" id="filter-price-max" placeholder="99999">
+      </div>
+      <div class="filter-group">
+        <label>📅 Дата від</label>
+        <input type="date" id="filter-date-from">
+      </div>
+      <div class="filter-group">
+        <label>📅 Дата до</label>
+        <input type="date" id="filter-date-to">
+      </div>
+      <div class="filter-group">
+        <label>&nbsp;</label>
+        <button class="btn-filter" onclick="applyFilters()">🔍 Знайти</button>
+      </div>
+      <div class="filter-group">
+        <label>&nbsp;</label>
+        <button class="btn-reset" onclick="resetFilters()">✕ Скинути</button>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <div class="section-header">
+      <h3>🌟 Доступні тури</h3>
+      <span class="results-count" id="results-count"></span>
+    </div>
+    <div class="tours-grid" id="tours-list">Завантаження...</div>
+  </main>
+
+  <!-- Секція заявки -->
+  <div class="lead-section">
+    <h2>Не знаєте з чого почати? 🤔</h2>
+    <p>Залиште заявку — менеджер підбере тур спеціально для вас</p>
+    <div class="lead-box" id="lead-form">
+      <div class="lead-grid">
+        <div>
+          <label>Ваше імʼя *</label>
+          <input type="text" id="lead-name" placeholder="Іван Шевченко">
+        </div>
+        <div>
+          <label>Телефон *</label>
+          <input type="tel" id="lead-phone" placeholder="+380XXXXXXXXX">
+        </div>
+      </div>
+      <div style="margin-bottom:15px;">
+        <label>Email</label>
+        <input type="email" id="lead-email" placeholder="your@email.com">
+      </div>
+      <div>
+        <label>Побажання</label>
+        <textarea id="lead-message" placeholder="Куди хочете поїхати? Які дати? Кількість осіб?"></textarea>
+      </div>
+      <button class="btn-lead" onclick="submitLead()">📞 Передзвоніть мені</button>
+      <div class="lead-error" id="lead-error"></div>
+    </div>
+    <div class="lead-success" id="lead-success">
+      <div class="icon">✅</div>
+      <h3>Заявку отримано!</h3>
+      <p>Наш менеджер звʼяжеться з вами найближчим часом.</p>
+    </div>
+  </div>
+
+  <footer>© 2026 <span>GoWay Tours</span> — подорожуй з нами</footer>
+
+  <script>
+    var allTours = [];
+
+    fetch('/api/me').then(function(r) { return r.json(); }).then(function(data) {
+      if (data.userId) {
+        document.getElementById('nav').innerHTML =
+          '<span class="nav-user">👤 ' + data.name + '</span>' +
+          (data.role === 'Admin' ? '<a href="/admin.html" class="btn-outline">Адмін</a>' : '') +
+          '<a href="/my-bookings.html" class="btn-outline">Бронювання</a>' +
+          '<a href="#" onclick="logout()" class="btn-outline">Вийти</a>';
+      } else {
+        document.getElementById('nav').innerHTML =
+          '<a href="/login.html" class="btn-login">Увійти</a>' +
+          '<a href="/register.html" class="btn-register">Реєстрація</a>';
+      }
+    });
+
+    function logout() {
+      fetch('/api/logout', { method: 'POST' }).then(function() { window.location.reload(); });
+    }
+
+    var photos = {
+      'Україна': 'https://images.unsplash.com/photo-1593264128891-3e338e73cd98?w=400&h=220&fit=crop',
+      'Польща': 'https://images.unsplash.com/photo-1519197924294-4ba991a11128?w=400&h=220&fit=crop',
+      'Туреччина': 'https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=400&h=220&fit=crop',
+      'Єгипет': 'https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=400&h=220&fit=crop',
+      'Греція': 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=400&h=220&fit=crop',
+      'Іспанія': 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=400&h=220&fit=crop',
+      'Мальдіви': 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=400&h=220&fit=crop',
+      'Чехія': 'https://images.unsplash.com/photo-1541849546-216549ae216d?w=400&h=220&fit=crop',
+      'Австрія': 'https://images.unsplash.com/photo-1516550893923-42d28e5677af?w=400&h=220&fit=crop',
+      'Італія': 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=400&h=220&fit=crop',
+      'ОАЕ': 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400&h=220&fit=crop',
+      'Франція': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400&h=220&fit=crop',
+      'Японія': 'https://images.unsplash.com/photo-1490761668535-35497054764e?w=400&h=220&fit=crop',
+      'Таїланд': 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=400&h=220&fit=crop',
+      'Індонезія': 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&h=220&fit=crop',
+      'Нідерланди': 'https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=400&h=220&fit=crop',
+      'Португалія': 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=400&h=220&fit=crop',
+      'Марокко': 'https://images.unsplash.com/photo-1489493887464-892be6d1daae?w=400&h=220&fit=crop',
+      'Норвегія': 'https://images.unsplash.com/photo-1516733968668-dbdce39c4651?w=400&h=220&fit=crop',
+      'Швейцарія': 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=400&h=220&fit=crop',
+      'Мексика': 'https://images.unsplash.com/photo-1518638150340-f706e86654de?w=400&h=220&fit=crop',
+      'Хорватія': 'https://images.unsplash.com/photo-1555990792-da30de3f8f9a?w=400&h=220&fit=crop',
+      'Фінляндія': 'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=400&h=220&fit=crop',
+      'Грузія': 'https://images.unsplash.com/photo-1565008576549-57569a49371d?w=400&h=220&fit=crop',
+      'Великобританія': 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=400&h=220&fit=crop',
+      'Кіпр': 'https://images.unsplash.com/photo-1562979318-e927e2a9b0fe?w=400&h=220&fit=crop',
+      'Угорщина': 'https://images.unsplash.com/photo-1560969184-10fe8719e047?w=400&h=220&fit=crop',
+      'Чорногорія': 'https://images.unsplash.com/photo-1586500036706-41963de24d8b?w=400&h=220&fit=crop'
+    };
+
+    function getPhoto(tour) {
+      return tour.image_url || photos[tour.country] || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&h=220&fit=crop';
+    }
+
+    function fetchTours() {
+      fetch('/api/tours').then(function(r) { return r.json(); }).then(function(tours) {
+        allTours = tours;
+        var select = document.getElementById('filter-country');
+        var countries = [];
+        tours.forEach(function(t) { if (countries.indexOf(t.country) === -1) countries.push(t.country); });
+        countries.sort().forEach(function(c) {
+          var opt = document.createElement('option');
+          opt.value = c; opt.textContent = c;
+          select.appendChild(opt);
+        });
+        renderTours(allTours);
+      });
+    }
+
+    function renderTours(tours) {
+      document.getElementById('results-count').textContent = 'Знайдено: ' + tours.length + ' турів';
+      var list = document.getElementById('tours-list');
+      if (!tours.length) {
+        list.innerHTML = '<div class="no-results"><div style="font-size:3em">😕</div><p>Нічого не знайдено. Спробуйте змінити фільтри.</p></div>';
+        return;
+      }
+      list.innerHTML = tours.map(function(tour) {
+        var img = getPhoto(tour);
+        var desc = tour.description ? tour.description.slice(0, 80) + '...' : '';
+        var date = tour.start_date ? tour.start_date.slice(0, 10) : '—';
+        return '<div class="tour-card" onclick="window.location=\'/tour.html?id=' + tour.id + '\'">' +
+          '<div class="tour-card-img">' +
+          '<img src="' + img + '" alt="' + tour.name + '" onerror="this.src=\'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&h=220&fit=crop\'">' +
+          '<span class="tour-badge">📍 ' + tour.country + '</span>' +
+          '</div>' +
+          '<div class="tour-card-body">' +
+          '<h3>' + tour.name + '</h3>' +
+          '<p>' + desc + '</p>' +
+          '<div class="tour-card-footer">' +
+          '<div class="price">' + tour.price + ' USD<small> / особу</small></div>' +
+          '<div class="tour-date">📅 ' + date + '</div>' +
+          '</div></div></div>';
+      }).join('');
+    }
+
+    function applyFilters() {
+      var country = document.getElementById('filter-country').value;
+      var min = parseFloat(document.getElementById('filter-price-min').value) || 0;
+      var max = parseFloat(document.getElementById('filter-price-max').value) || 999999;
+      var from = document.getElementById('filter-date-from').value;
+      var to = document.getElementById('filter-date-to').value;
+      renderTours(allTours.filter(function(t) {
+        if (country && t.country !== country) return false;
+        if (t.price < min || t.price > max) return false;
+        if (from && t.start_date && t.start_date.slice(0,10) < from) return false;
+        if (to && t.start_date && t.start_date.slice(0,10) > to) return false;
+        return true;
+      }));
+    }
+
+    function resetFilters() {
+      ['filter-country','filter-price-min','filter-price-max','filter-date-from','filter-date-to']
+        .forEach(function(id) { document.getElementById(id).value = ''; });
+      renderTours(allTours);
+    }
+
+    function submitLead() {
+      var name = document.getElementById('lead-name').value.trim();
+      var phone = document.getElementById('lead-phone').value.trim();
+      var email = document.getElementById('lead-email').value.trim();
+      var message = document.getElementById('lead-message').value.trim();
+      var err = document.getElementById('lead-error');
+      if (!name || !phone) {
+        err.textContent = "Вкажіть імʼя та телефон";
+        err.style.display = 'block';
+        return;
+      }
+      fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name, phone: phone, email: email, message: message })
+      }).then(function(r) { return r.json(); }).then(function(data) {
+        if (data.success) {
+          document.getElementById('lead-form').style.display = 'none';
+          document.getElementById('lead-success').style.display = 'block';
+        } else {
+          err.textContent = data.error || 'Помилка';
+          err.style.display = 'block';
+        }
+      });
+    }
+
+    document.addEventListener('keydown', function(e) { if (e.key === 'Enter') applyFilters(); });
+    fetchTours();
+  </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+
+const mysql = require('mysql2');
+
+const db = mysql.createConnection({
+    host: '10.37.129.5',
+    user: 'dbuser',
+    password: 'Chwesyk1979!',
+    database: 'travel_agency_db'
+});
+
+db.connect((err) => {
+    if (err) console.error('Помилка БД:', err);
+    else console.log('Успішне підключення до бази даних!');
+});
+
+module.exports = db;
