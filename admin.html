@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Адмін — GoWay</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; color: #1a1a2e; }
+    header { background: linear-gradient(135deg, #1a1a2e, #16213e); color: white; padding: 0 40px; display: flex; justify-content: space-between; align-items: center; height: 65px; box-shadow: 0 2px 20px rgba(0,0,0,0.3); }
+    .logo { font-size: 1.4em; font-weight: 700; }
+    .logo span { color: #f72585; }
+    header a { color: white; text-decoration: none; padding: 8px 18px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.3); font-size: 0.9em; transition: all 0.2s; }
+    header a:hover { background: rgba(255,255,255,0.1); }
+    main { padding: 30px 40px; }
+    .tabs { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
+    .tab { padding: 10px 22px; background: white; border: none; border-radius: 25px; cursor: pointer; font-size: 0.92em; font-weight: 600; color: #666; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.2s; }
+    .tab:hover { color: #f72585; }
+    .tab.active { background: linear-gradient(135deg, #f72585, #d61a6e); color: white; box-shadow: 0 4px 15px rgba(247,37,133,0.3); }
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+    th { background: linear-gradient(135deg, #1a1a2e, #16213e); color: white; padding: 14px 16px; text-align: left; font-size: 0.85em; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    td { padding: 12px 16px; border-bottom: 1px solid #f0f4f8; font-size: 0.92em; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafbfc; }
+    .btn { padding: 6px 14px; border: none; border-radius: 20px; cursor: pointer; font-size: 0.82em; font-weight: 600; transition: all 0.2s; }
+    .btn-edit { background: #fff3cd; color: #856404; }
+    .btn-edit:hover { background: #ffc107; color: white; }
+    .btn-delete { background: #ffeaec; color: #e63946; }
+    .btn-delete:hover { background: #e63946; color: white; }
+    .btn-add { background: linear-gradient(135deg, #f72585, #d61a6e); color: white; padding: 10px 22px; font-size: 0.95em; font-weight: 600; border: none; border-radius: 25px; cursor: pointer; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(247,37,133,0.3); transition: transform 0.2s; }
+    .btn-add:hover { transform: translateY(-2px); }
+    select.status-select { padding: 6px 10px; border-radius: 20px; border: 2px solid #e8ecf0; font-size: 0.85em; cursor: pointer; outline: none; background: white; }
+    select.status-select:focus { border-color: #f72585; }
+    .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.8em; font-weight: 600; }
+    .badge-active { background: #d8f3dc; color: #2d6a4f; }
+    .badge-inactive { background: #ffeaec; color: #e63946; }
+    .badge-admin { background: #ffeaec; color: #e63946; }
+    .badge-client { background: #d8f3dc; color: #2d6a4f; }
+    .badge-new { background: #cce5ff; color: #004085; }
+    .badge-inprogress { background: #fff3cd; color: #856404; }
+    .badge-done { background: #d8f3dc; color: #2d6a4f; }
+
+    /* Модальне вікно */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 200; justify-content: center; align-items: center; backdrop-filter: blur(3px); }
+    .modal-overlay.open { display: flex; }
+    .modal { background: white; padding: 35px; border-radius: 20px; width: 520px; max-width: 95%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-header h3 { font-size: 1.3em; }
+    .modal-close { background: #f0f4f8; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1.1em; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .modal-close:hover { background: #ffeaec; color: #e63946; }
+    .modal label { display: block; font-size: 0.78em; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin: 14px 0 5px; }
+    .modal input, .modal textarea, .modal select { width: 100%; padding: 10px 14px; border: 2px solid #e8ecf0; border-radius: 10px; font-size: 0.95em; outline: none; font-family: inherit; transition: border 0.2s; }
+    .modal input:focus, .modal textarea:focus, .modal select:focus { border-color: #f72585; }
+    .modal textarea { height: 90px; resize: vertical; }
+    .btn-save { background: linear-gradient(135deg, #f72585, #d61a6e); color: white; width: 100%; padding: 13px; font-size: 1em; font-weight: 600; border: none; border-radius: 12px; cursor: pointer; margin-top: 20px; transition: transform 0.2s, box-shadow 0.2s; }
+    .btn-save:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(247,37,133,0.4); }
+    .photo-preview { width: 100%; height: 150px; object-fit: cover; border-radius: 10px; margin-top: 8px; display: none; }
+    .upload-status { font-size: 0.82em; color: #888; margin-top: 5px; }
+    .tour-thumb { width: 60px; height: 40px; object-fit: cover; border-radius: 6px; }
+    .no-photo { width: 60px; height: 40px; background: #f0f4f8; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #aaa; font-size: 0.75em; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">⚙️ Go<span>Way</span> Адмін</div>
+    <a href="/">← На сайт</a>
+  </header>
+
+  <main>
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('bookings')">📋 Бронювання</button>
+      <button class="tab" onclick="showTab('users')">👥 Користувачі</button>
+      <button class="tab" onclick="showTab('tours')">✈️ Тури</button>
+      <button class="tab" onclick="showTab('leads')">📞 Заявки</button>
+    </div>
+
+    <!-- Бронювання -->
+    <div id="tab-bookings">
+      <table>
+        <thead><tr><th>#</th><th>Клієнт</th><th>Тур</th><th>Дата</th><th>Сума</th><th>Статус</th></tr></thead>
+        <tbody id="bookings-table"><tr><td colspan="6" style="text-align:center;padding:30px;color:#aaa">Завантаження...</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- Користувачі -->
+    <div id="tab-users" style="display:none">
+      <table>
+        <thead><tr><th>#</th><th>Імʼя</th><th>Email</th><th>Телефон</th><th>Роль</th><th>Реєстрація</th></tr></thead>
+        <tbody id="users-table"><tr><td colspan="6" style="text-align:center;padding:30px;color:#aaa">Завантаження...</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- Тури -->
+    <div id="tab-tours" style="display:none">
+      <button class="btn-add" onclick="openModal()">+ Додати тур</button>
+      <table>
+        <thead><tr><th>#</th><th>Фото</th><th>Назва</th><th>Регіон</th><th>Ціна</th><th>Початок</th><th>Кінець</th><th>Статус</th><th>Дії</th></tr></thead>
+        <tbody id="tours-table"><tr><td colspan="9" style="text-align:center;padding:30px;color:#aaa">Завантаження...</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- Заявки -->
+    <div id="tab-leads" style="display:none">
+      <table>
+        <thead><tr><th>#</th><th>Імʼя</th><th>Телефон</th><th>Email</th><th>Побажання</th><th>Дата</th><th>Статус</th></tr></thead>
+        <tbody id="leads-table"><tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa">Завантаження...</td></tr></tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Модальне вікно для турів -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-title">Додати тур</h3>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <input type="hidden" id="tour-id">
+      <label>Назва туру</label>
+      <input type="text" id="tour-title" placeholder="Відпустка в Буковелі">
+      <label>Регіон / Країна</label>
+      <input type="text" id="tour-region" placeholder="Україна">
+      <label>Опис</label>
+      <textarea id="tour-desc" placeholder="Опис туру..."></textarea>
+      <label>Ціна за особу (USD)</label>
+      <input type="number" id="tour-price" placeholder="250">
+      <label>Дата початку</label>
+      <input type="date" id="tour-start">
+      <label>Дата закінчення</label>
+      <input type="date" id="tour-end">
+      <label>Статус</label>
+      <select id="tour-active">
+        <option value="1">Активний</option>
+        <option value="0">Неактивний</option>
+      </select>
+      <label>Фото туру</label>
+      <img id="photo-preview" class="photo-preview">
+      <input type="file" id="tour-photo" accept="image/*" onchange="previewPhoto(this)">
+      <div class="upload-status" id="upload-status"></div>
+      <button class="btn-save" onclick="saveTour()">💾 Зберегти</button>
+    </div>
+  </div>
+
+  <script>
+    // Перевірка адміна
+    fetch('/api/me').then(function(r) { return r.json(); }).then(function(data) {
+      if (!data.userId || data.role !== 'Admin') window.location = '/';
+    });
+
+    function showTab(name) {
+      ['bookings', 'users', 'tours', 'leads'].forEach(function(t) {
+        document.getElementById('tab-' + t).style.display = t === name ? 'block' : 'none';
+      });
+      document.querySelectorAll('.tab').forEach(function(btn, i) {
+        btn.classList.toggle('active', ['bookings', 'users', 'tours', 'leads'][i] === name);
+      });
+    }
+
+    // ===== БРОНЮВАННЯ =====
+    function loadBookings() {
+      fetch('/api/admin/bookings').then(function(r) { return r.json(); }).then(function(data) {
+        if (data.error) {
+          document.getElementById('bookings-table').innerHTML = '<tr><td colspan="6" style="color:red;text-align:center;padding:20px">' + data.error + '</td></tr>';
+          return;
+        }
+        if (!data.length) {
+          document.getElementById('bookings-table').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#aaa">Бронювань ще немає</td></tr>';
+          return;
+        }
+        document.getElementById('bookings-table').innerHTML = data.map(function(b) {
+          return '<tr>' +
+            '<td><strong>' + b.booking_id + '</strong></td>' +
+            '<td>' + b.client_name + '</td>' +
+            '<td>' + b.tour_name + '</td>' +
+            '<td>' + new Date(b.booking_date).toLocaleDateString('uk-UA') + '</td>' +
+            '<td><strong style="color:#f72585">' + b.total_amount + ' USD</strong></td>' +
+            '<td><select class="status-select" onchange="updateStatus(' + b.booking_id + ', this.value)">' +
+            '<option' + (b.status === 'Pending' ? ' selected' : '') + ' value="Pending">⏳ Очікує</option>' +
+            '<option' + (b.status === 'Confirmed' ? ' selected' : '') + ' value="Confirmed">✅ Підтверджено</option>' +
+            '<option' + (b.status === 'Cancelled' ? ' selected' : '') + ' value="Cancelled">❌ Скасовано</option>' +
+            '</select></td>' +
+            '</tr>';
+        }).join('');
+      });
+    }
+
+    function updateStatus(id, status) {
+      fetch('/api/admin/bookings/' + id, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: status })
+      });
+    }
+
+    // ===== КОРИСТУВАЧІ =====
+    function loadUsers() {
+      fetch('/api/admin/users').then(function(r) { return r.json(); }).then(function(data) {
+        if (data.error) return;
+        if (!data.length) {
+          document.getElementById('users-table').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#aaa">Користувачів немає</td></tr>';
+          return;
+        }
+        document.getElementById('users-table').innerHTML = data.map(function(u) {
+          return '<tr>' +
+            '<td>' + u.user_id + '</td>' +
+            '<td><strong>' + u.first_name + ' ' + u.last_name + '</strong></td>' +
+            '<td>' + u.email + '</td>' +
+            '<td>' + (u.phone_number || '—') + '</td>' +
+            '<td><span class="badge badge-' + u.role.toLowerCase() + '">' + u.role + '</span></td>' +
+            '<td>' + new Date(u.created_at).toLocaleDateString('uk-UA') + '</td>' +
+            '</tr>';
+        }).join('');
+      });
+    }
+
+    // ===== ТУРИ =====
+    var toursData = [];
+
+    function loadTours() {
+      fetch('/api/admin/tours').then(function(r) { return r.json(); }).then(function(data) {
+        if (data.error) return;
+        toursData = data;
+        if (!data.length) {
+          document.getElementById('tours-table').innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;color:#aaa">Турів немає</td></tr>';
+          return;
+        }
+        document.getElementById('tours-table').innerHTML = data.map(function(t) {
+          var img = t.image_url
+            ? '<img src="' + t.image_url + '" class="tour-thumb" onerror="this.style.display=\'none\'">'
+            : '<div class="no-photo">—</div>';
+          return '<tr>' +
+            '<td>' + t.tour_id + '</td>' +
+            '<td>' + img + '</td>' +
+            '<td><strong>' + t.tour_title + '</strong></td>' +
+            '<td>' + t.region + '</td>' +
+            '<td><strong style="color:#f72585">' + t.price_per_person + ' USD</strong></td>' +
+            '<td>' + (t.start_date ? t.start_date.slice(0,10) : '—') + '</td>' +
+            '<td>' + (t.end_date ? t.end_date.slice(0,10) : '—') + '</td>' +
+            '<td><span class="badge ' + (t.is_active ? 'badge-active' : 'badge-inactive') + '">' + (t.is_active ? 'Активний' : 'Неактивний') + '</span></td>' +
+            '<td>' +
+            '<button class="btn btn-edit" onclick="editTour(' + t.tour_id + ')">✏️</button> ' +
+            '<button class="btn btn-delete" onclick="deleteTour(' + t.tour_id + ')">🗑</button>' +
+            '</td>' +
+            '</tr>';
+        }).join('');
+      });
+    }
+
+    function openModal() {
+      document.getElementById('modal-title').textContent = 'Додати тур';
+      document.getElementById('tour-id').value = '';
+      document.getElementById('tour-title').value = '';
+      document.getElementById('tour-region').value = '';
+      document.getElementById('tour-desc').value = '';
+      document.getElementById('tour-price').value = '';
+      document.getElementById('tour-start').value = '';
+      document.getElementById('tour-end').value = '';
+      document.getElementById('tour-active').value = '1';
+      document.getElementById('tour-photo').value = '';
+      document.getElementById('photo-preview').style.display = 'none';
+      document.getElementById('upload-status').textContent = '';
+      document.getElementById('modal').classList.add('open');
+    }
+
+    function editTour(id) {
+      var t = toursData.find(function(x) { return x.tour_id === id; });
+      if (!t) return;
+      document.getElementById('modal-title').textContent = 'Редагувати тур';
+      document.getElementById('tour-id').value = t.tour_id;
+      document.getElementById('tour-title').value = t.tour_title;
+      document.getElementById('tour-region').value = t.region;
+      document.getElementById('tour-desc').value = t.description || '';
+      document.getElementById('tour-price').value = t.price_per_person;
+      document.getElementById('tour-start').value = t.start_date ? t.start_date.slice(0,10) : '';
+      document.getElementById('tour-end').value = t.end_date ? t.end_date.slice(0,10) : '';
+      document.getElementById('tour-active').value = t.is_active ? '1' : '0';
+      document.getElementById('tour-photo').value = '';
+      document.getElementById('upload-status').textContent = '';
+      if (t.image_url) {
+        document.getElementById('photo-preview').src = t.image_url;
+        document.getElementById('photo-preview').style.display = 'block';
+      } else {
+        document.getElementById('photo-preview').style.display = 'none';
+      }
+      document.getElementById('modal').classList.add('open');
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.remove('open');
+    }
+
+    function previewPhoto(input) {
+      if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var preview = document.getElementById('photo-preview');
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    function saveTour() {
+      var id = document.getElementById('tour-id').value;
+      var body = {
+        tour_title: document.getElementById('tour-title').value,
+        region: document.getElementById('tour-region').value,
+        description: document.getElementById('tour-desc').value,
+        price_per_person: document.getElementById('tour-price').value,
+        start_date: document.getElementById('tour-start').value,
+        end_date: document.getElementById('tour-end').value,
+        is_active: document.getElementById('tour-active').value === '1'
+      };
+      var url = id ? '/api/admin/tours/' + id : '/api/admin/tours';
+      var method = id ? 'PUT' : 'POST';
+      fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      }).then(function(r) { return r.json(); }).then(function(data) {
+        if (data.error) { alert('Помилка: ' + data.error); return; }
+        var tourId = id || data.tour_id;
+        var photoFile = document.getElementById('tour-photo').files[0];
+        if (photoFile && tourId) {
+          document.getElementById('upload-status').textContent = 'Завантаження фото...';
+          var formData = new FormData();
+          formData.append('photo', photoFile);
+          fetch('/api/admin/tours/' + tourId + '/photo', {
+            method: 'POST',
+            body: formData
+          }).then(function(r) { return r.json(); }).then(function(d) {
+            document.getElementById('upload-status').textContent = d.success ? '✅ Фото завантажено!' : '❌ Помилка фото';
+            closeModal();
+            loadTours();
+          });
+        } else {
+          closeModal();
+          loadTours();
+        }
+      });
+    }
+
+    function deleteTour(id) {
+      if (!confirm('Видалити цей тур?')) return;
+      fetch('/api/admin/tours/' + id, { method: 'DELETE' })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.success) loadTours();
+          else alert('Помилка: ' + data.error);
+        });
+    }
+
+    // ===== ЗАЯВКИ =====
+    function loadLeads() {
+      fetch('/api/admin/leads').then(function(r) { return r.json(); }).then(function(data) {
+        if (data.error) {
+          document.getElementById('leads-table').innerHTML = '<tr><td colspan="7" style="color:red;text-align:center;padding:20px">' + data.error + '</td></tr>';
+          return;
+        }
+        if (!data.length) {
+          document.getElementById('leads-table').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa">Заявок ще немає</td></tr>';
+          return;
+        }
+        document.getElementById('leads-table').innerHTML = data.map(function(l) {
+          return '<tr>' +
+            '<td>' + l.lead_id + '</td>' +
+            '<td><strong>' + l.name + '</strong></td>' +
+            '<td><a href="tel:' + l.phone + '" style="color:#f72585;font-weight:600">' + l.phone + '</a></td>' +
+            '<td>' + (l.email || '—') + '</td>' +
+            '<td style="max-width:200px;color:#666;font-size:0.88em">' + (l.message || '—') + '</td>' +
+            '<td>' + new Date(l.created_at).toLocaleDateString('uk-UA') + '</td>' +
+            '<td><select class="status-select" onchange="updateLeadStatus(' + l.lead_id + ', this.value)">' +
+            '<option' + (l.status === 'New' ? ' selected' : '') + ' value="New">🆕 Нова</option>' +
+            '<option' + (l.status === 'InProgress' ? ' selected' : '') + ' value="InProgress">⏳ В роботі</option>' +
+            '<option' + (l.status === 'Done' ? ' selected' : '') + ' value="Done">✅ Виконано</option>' +
+            '</select></td>' +
+            '</tr>';
+        }).join('');
+      });
+    }
+
+    function updateLeadStatus(id, status) {
+      fetch('/api/admin/leads/' + id, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: status })
+      });
+    }
+
+    // Закриття модалки по кліку поза нею
+    document.getElementById('modal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+
+    loadBookings();
+    loadUsers();
+    loadTours();
+    loadLeads();
+  </script>
+</body>
+</html>
